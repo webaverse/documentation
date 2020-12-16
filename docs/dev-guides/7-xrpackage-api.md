@@ -8,8 +8,6 @@ The `XRPackage` API is documented here. See install instructions and development
 - The `XRPackageEngine` API is documented [in the next section](./8-xrpackage-engine-api.md).
 - The `XRPackageManager` API is documented [in a later section](./9-xrpackage-manager-api.md).
 
-**Note: This page is still in development, whilst the API is documented**.
-
 ## `constructor(a)`
 
 **Parameters**: `a` can either be an `XRPackage` instance (to duplicate it), or a `Uint8Array` of data for a `.wbn` XRPackage.
@@ -30,7 +28,21 @@ const p = await fetch("/a.wbn")
   .then((uint8Array) => new XRPackage(uint8Array));
 ```
 
-## `add`
+## `async add(p, options)`
+
+_Adds an XRPackage to this instance._
+
+**Parameters**:
+
+- `p` is the `XRPackage` instance to add.
+- `options` is an Object with the following optional parameters:
+
+| Key       | Default | Description                                                         |
+| --------- | ------- | ------------------------------------------------------------------- |
+| `reason`  | N/A     | String describing why the package is added                          |
+| `timeout` | 30000   | Milliseconds after which this method should reject if loading fails |
+
+**Returns**: A `Promise` that resolves when the package loads successfully, or rejects if the `timeout` is reached before the load occurs.
 
 ## `addFile(pathname, data, type)`
 
@@ -118,8 +130,6 @@ _Downloads and returns an XRPackage object with the specified hash from IPFS._
 
 **Returns**: `p`. an `XRPackage` object
 
-## `ensureRunStop`
-
 ## `export()`
 
 **Parameters**: None
@@ -189,7 +199,13 @@ _Retrieve the collision mesh of the XRPackage if it exists._
 
 **Returns**: A <a href="https://threejs.org/docs/#api/en/scenes/Scene" target="_blank" rel="noopener noreferrer">`Scene`</a> object for the package volume mesh if it exists, or `null` if a volume mesh does not exist.
 
-## `grabrelease`
+## `grabrelease()`
+
+_Releases all grabs on the current package._
+
+**Parameters**: None
+
+**Returns**: Nothing
 
 ## `isAttached()`
 
@@ -197,9 +213,28 @@ _Retrieve the collision mesh of the XRPackage if it exists._
 
 **Returns**: a `Boolean` representing whether the current package is attached to an `XRPackageEngine` instance.
 
-## `loadAvatar`
+## `async loadAvatar()`
 
-## `remove`
+_Waits for the avatar to load, if applicable._
+
+**Parameters**: None
+
+**Returns**: A `Promise` that resolves when the avatar is loaded/immediately if loading was not applicable.
+
+## `remove(p, options)`
+
+_Removes an XRPackage from this instance._
+
+**Parameters**:
+
+- `p` is the `XRPackage` instance to remove.
+- `options` is an Object with the following optional parameters:
+
+| Key      | Default | Description                                  |
+| -------- | ------- | -------------------------------------------- |
+| `reason` | N/A     | String describing why the package is removed |
+
+**Returns**: Nothing.
 
 ## `removeFile(pathname)`
 
@@ -209,11 +244,25 @@ _Removes a file from the XRPackage._
 
 **Returns**: Nothing
 
-## `setMatrix`
+## `setMatrix(m)`
 
-## `setPose`
+**Parameters**: the matrix `m` to set.
 
-## `setSchema`
+**Returns**: Nothing
+
+## `setPose(pose)`
+
+_Sets the pose for this avatar._
+
+**Parameters**: `pose` is an array of three arrays: `[head, leftGamepad, rightGamepad]`. The elements for each inner array must be describe the relevant position, quaternion, pointer (if applicable), and grip (if applicable) -- in that order.
+
+**Returns**: Nothing
+
+## `setSchema(key, value)`
+
+**Parameters**: the `key` and corresponding `value` to set for the schema for this package
+
+**Returns**: Nothing
 
 ## `async upload()`
 

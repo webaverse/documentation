@@ -8,8 +8,6 @@ The `XRPackageEngine` API is documented here. See install instructions and devel
 - The `XRPackage` API is documented [in the previous section](./7-xrpackage-api.md).
 - The `XRPackageManager` API is documented [in the next section](./9-xrpackage-manager-api.md).
 
-**Note: This page is still in development, whilst the API is documented**.
-
 ## `constructor(options)`
 
 **Parameters**: `options` is an optional Object, where all the following keys are also optional:
@@ -64,9 +62,13 @@ _Downloads & imports an arbitrary scene from IPFS into the Engine._
 
 **Returns**: a `Promise` that resolves when the scene is downloaded and imported successfully, or rejects when there is a non-200 response when downloading or the downloaded scene is invalid.
 
-## `draw`
+## `equip(slot)`
 
-## `equip`
+_Equips the relevant object (note: the engine must have an avatar/rig set)._
+
+**Parameters**: The `slot` to store the object in, which must be a string out of `head`, `left`, `right`, and `back`.
+
+**Returns**: Nothing
 
 ## `async exportScene()`
 
@@ -74,7 +76,16 @@ _Downloads & imports an arbitrary scene from IPFS into the Engine._
 
 **Returns**: a `Promise` that resolves with a `Uint8Array` representing the `.wbn` bundle for the current scene.
 
-## `getContext`
+## `getContext(type, opts)`
+
+_Wraps the <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/getContext" target="_blank" rel="noopener noreferrer">`HTMLCanvasElement.getContext()`</a> method for this `XRPackageEngine` instance_.
+
+**Parameters**:
+
+- `type` corresponds to the `contextType` parameter from the <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/getContext" target="_blank" rel="noopener noreferrer">`HTMLCanvasElement.getContext()`</a> method.
+- `opts` corresponds to the `contextAttributes` parameter from the <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/getContext" target="_blank" rel="noopener noreferrer">`HTMLCanvasElement.getContext()`</a> method.
+
+**Returns**: The <a href="https://developer.mozilla.org/en-US/docs/Web/API/RenderingContext" target="_blank" rel="noopener noreferrer">`RenderingContext`</a> of the engine's canvas, or `null` if the context identifier is not supported.
 
 ## `getEnv(key)`
 
@@ -82,15 +93,53 @@ _Downloads & imports an arbitrary scene from IPFS into the Engine._
 
 **Returns**: the corresponding `value` for the given `key`.
 
-## `getProxySession`
+## `getProxySession(options)`
 
-## `grabdown`
+_Gets the proxied <a href="https://developer.mozilla.org/en-US/docs/Web/API/XRSession" target="_blank" rel="noopener noreferrer">XRSession</a> for this engine instance._
 
-## `grabtriggerdown`
+**Parameters**: `options` is an Object with an optional `order` parameter (defaults to `0`).
 
-## `grabup`
+**Returns**: an `Object` representing the proxied/hijacked <a href="https://developer.mozilla.org/en-US/docs/Web/API/XRSession" target="_blank" rel="noopener noreferrer">XRSession</a> for this engine instance.
 
-## `grabuse`
+## `grabdown(handedness)`
+
+_Marks the given hand as in grabbing mode. Does nothing if there is no avatar/rig for this engine instance._
+
+**Parameters**: `handedness` is a string out of `left`, `right` that represents which hand is grabbing.
+
+**Returns**: Nothing
+
+## `grabtriggerdown(handedness)`
+
+_Triggers a grab attempt for the given hand._
+
+**Parameters**: `handedness` is a string out of `left`, `right` that represents which hand is grabbing.
+
+**Returns**: Nothing
+
+## `grabtriggerup(handedness)`
+
+_Triggers a release-grab attempt for the given hand._
+
+**Parameters**: `handedness` is a string out of `left`, `right` that represents which hand is releasing the grab.
+
+**Returns**: Nothing
+
+## `grabup(handedness)`
+
+_Releases the given hand from grabbing mode._
+
+**Parameters**: `handedness` is a string out of `left`, `right` that represents which hand is grabbing.
+
+**Returns**: Nothing
+
+## `grabuse(handedness)`
+
+_Marks a grab as being in use._
+
+**Parameters**: `handedness` is a string out of `left`, `right` that represents which hand is grabbing.
+
+**Returns**: Nothing
 
 ## `async importScene(uint8Array)`
 
@@ -108,8 +157,6 @@ _Attaches a `resize` event listener to automatically respond to resize events._
 
 **Returns**: Nothing
 
-## `packageRequestAnimationFrame`
-
 ## `remove(p, reason)`
 
 _Removes an XRPackage from the Engine._
@@ -123,7 +170,22 @@ _Removes an XRPackage from the Engine._
 
 **Throws** an `Error` if the given `p` is not a child of this `XRPackageEngine` instance.
 
-## `render`
+## `render(pak, width, height, viewMatrix, projectionMatrix, framebuffer)`
+
+_Performs a render of the engine (useful when needing to perform manual renders, such as for a packaged mirror)._
+
+**Parameters**: all parameters are required, as follows:
+
+| Key                | Description                                                                                                                                                                              |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pak`              | The `XRPackage` to render (can be `null`)                                                                                                                                                |
+| `width`            | The new width of the renderer                                                                                                                                                            |
+| `height`           | The new height of the renderer                                                                                                                                                           |
+| `viewMatrix`       | The camera's matrix                                                                                                                                                                      |
+| `projectionMatrix` | The camera's projection matrix                                                                                                                                                           |
+| `framebuffer`      | The <a href="https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createFramebuffer" target="_blank" rel="noopener noreferrer">`WebGLFramebuffer`</a> for the renderer |
+
+**Returns**: Nothing
 
 ## `reset()`
 
@@ -152,8 +214,6 @@ _Resizes this XRPackageEngine instance._
 **Parameters**: `camera` is the camera to set for the Engine (e.g. a `Three.PerspectiveCamera`)
 
 **Returns**: Nothing
-
-## `setClearFreeFramebuffer`
 
 ## `setEnv(key, value)`
 
@@ -221,7 +281,16 @@ _Sets the XR Framebuffer for the engine's iframe._
 
 **Returns**: Nothing
 
-## `tick`
+## `tick(timestamp, frame)`
+
+_Performs a single renderer tick._
+
+**Parameters**:
+
+- `timestamp`, which defaults to `performance.now()`
+- `frame`, which defaults to `null`
+
+**Returns**: Nothing
 
 ## `updateMatrixWorld()`
 
@@ -247,10 +316,10 @@ _Uploads the current scene to the Webaverse IPFS backend._
 
 **Returns**: a Promise that resolves when the `XRPackageInstance` is initialised and the service worker has been registered successfully.
 
-## `wearAvatar`
+## `async wearAvatar(p)`
 
 Wear the specified package as an avatar.
 
 **Parameters**: `p`, an `XRPackage` object.
 
-**Returns**: None
+**Returns**: a `Promise` that resolves when the avatar is worn successfully.
